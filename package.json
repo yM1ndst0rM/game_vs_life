@@ -1,0 +1,29 @@
+{
+  "name": "game_vs_life",
+  "version": "1.0.0",
+  "description": "Real Time Strategy Game based on Conway's Game of Life",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yM1ndst0rM/game_vs_life.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yM1ndst0rM/game_vs_life/issues"
+  },
+  "homepage": "https://github.com/yM1ndst0rM/game_vs_life#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "del": "^5.1.0",
+    "eslint": "^7.2.0",
+    "gulp": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-tslint": "^8.1.4",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "typescript": "^3.9.5"
+  }
+}

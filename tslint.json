@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "ban": [true,
+      ["Object", "observe", "Not implemented in NodeJS ES6"]
+    ],
+    "class-name": true,
+    "no-var-requires": true,
+    "no-var-keyword": true,
+    "no-duplicate-variable": true,
+    "no-shadowed-variable": true,
+    "unified-signatures": true,
+    "no-conditional-assignment": true,
+    "no-invalid-this": true,
+    "no-string-throw": true,
+    "use-isnan": true,
+    "prefer-const": true,
+    "interface-over-type-literal": true,
+    "new-parens": true,
+    "no-angle-bracket-type-assertion": true,
+    "one-line": true,
+    "whitespace": [true,
+      "check-branch", "check-decl", "check-operator", "check-module", "check-separator", "check-type", "check-typecast"
+    ],
+    "triple-equals": true
+  }
+}

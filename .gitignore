@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Intellij Idea local files and configs
+/.idea/
+
+# Build output
+/dist/
