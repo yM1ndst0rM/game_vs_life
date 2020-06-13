@@ -51,3 +51,15 @@ export interface Map {
     height: number,
     state: Array<Array<CellType>>
 }
+
+export enum MoveType {
+    PLACE_CELL
+}
+
+export interface Move {
+    type: MoveType,
+    origin: {
+        x: number,
+        y: number
+    }
+}
