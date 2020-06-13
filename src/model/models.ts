@@ -124,7 +124,21 @@ export class Game {
         }
     }
 
-    startGame(tickDuration: number) {
+    removePlayer(p: Player): void {
+        if (this.player1 === p) {
+            this._player1 = undefined;
+            if (this.state === GameState.RUNNING) {
+                this._state = GameState.PLAYER2_WIN;
+            }
+        } else if (this.player2 === p) {
+            this._player2 = undefined;
+            if (this.state === GameState.RUNNING) {
+                this._state = GameState.PLAYER1_WIN;
+            }
+        }
+    }
+
+    startGame(tickDuration: number): void {
         if (this.state !== GameState.READY_TO_START) {
             throw new Error(`Game with Id ${this.id} is in state ${this.state} and cannot be started.`);
         }
@@ -132,7 +146,7 @@ export class Game {
         this._state = GameState.RUNNING;
     }
 
-    nextTick(map: Map, resourcesP1: Resources, resourcesP2: Resources) {
+    nextTick(map: Map, resourcesP1: Resources, resourcesP2: Resources): void {
         if (this.state !== GameState.RUNNING) {
             throw new Error(`Game with Id ${this.id} is in state ${this.state} and cannot receive tick events.`);
         }
@@ -142,6 +156,16 @@ export class Game {
         this._player2_resources = resourcesP2;
 
         this._tick++;
+    }
+
+    endGame(winner: Player | undefined): void {
+        if (this.player1 === winner) {
+            this._state = GameState.PLAYER1_WIN;
+        } else if (this.player2 === winner) {
+            this._state = GameState.PLAYER2_WIN;
+        } else {
+            this._state = GameState.DRAW;
+        }
     }
 }
 
