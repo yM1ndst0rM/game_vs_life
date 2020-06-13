@@ -106,6 +106,16 @@ export class Game {
         return this._player2_resources;
     }
 
+    get winner(): Player | undefined {
+        if (this.state === GameState.PLAYER1_WIN) {
+            return this.player1;
+        } else if (this.state === GameState.PLAYER2_WIN) {
+            return this.player2;
+        } else {
+            return undefined;
+        }
+    }
+
     addPlayerToFreeSeat(p: Player): void {
         if (this.state !== GameState.WAITING_FOR_PLAYERS) {
             throw Error(`Game with Id ${this.id} is in state ${this.state} and does not accept new players.`);
