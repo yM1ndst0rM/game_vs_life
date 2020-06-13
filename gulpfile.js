@@ -42,7 +42,12 @@ function lint() {
         .pipe(gulpEslint.failAfterError());
 }
 
+function exportPublicNonScriptAssets() {
+    return gulp.src(paths.publicAssets).pipe(gulp.dest(paths.dist + "/public"));
+}
 
-gulp.task("default", gulp.series(lint, compileDebug));
+gulp.task("default", gulp.series(lint, compileDebug, exportPublicNonScriptAssets));
+
+gulp.task(lint)
 
 gulp.task("rebuild", gulp.series(clean, "default"));
