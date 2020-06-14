@@ -1,4 +1,4 @@
-import { CellType, Game, GameState, GMap, Move, MoveType, Player, Resources } from "../model/models";
+import { CellType, Game, GameState, Map as GMap, Move, MoveType, Player, Resources } from "../model/models";
 import * as debug from "debug";
 
 const log = debug('lvg:engine');
