@@ -41,7 +41,7 @@ export class GameLoop {
         }
     }
 
-    async performTick(): Promise<void> {
+    private async performTick(): Promise<void> {
         if (this._isProcessingTick) {
             log("Game loop busy, skipping frame.");
             return;
