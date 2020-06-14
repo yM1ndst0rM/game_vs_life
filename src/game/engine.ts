@@ -1,4 +1,14 @@
-import { CellType, Game, GameState, Map as GMap, Move, MoveType, Player, Resources } from "../model/models";
+import {
+    CellType,
+    Game,
+    GameState,
+    Map as GMap,
+    Move,
+    MoveType,
+    OrderedMove,
+    Player,
+    Resources
+} from "../model/models";
 import * as debug from "debug";
 
 const log = debug('lvg:engine');
@@ -67,13 +77,13 @@ export class BasicRuleEngine implements RulesEngine {
     async onTick(game: Game, inputBuffer: PlayerInputBuffer): Promise<boolean> {
         //process user actions
         const p1 = game.player1;
-        let p1Move: Move | undefined;
+        let p1Move: OrderedMove | undefined;
         if (p1) {
             p1Move = inputBuffer.popNextMoveByPlayer(p1);
         }
 
         const p2 = game.player1;
-        let p2Move: Move | undefined;
+        let p2Move: OrderedMove | undefined;
         if (p2) {
             p2Move = inputBuffer.popNextMoveByPlayer(p2);
         }
@@ -309,15 +319,15 @@ class ModifyResDiff extends Diff {
 }
 
 export interface PlayerInputBuffer {
-    onNewMoveReceived(p: Player, m: Move): void
+    onNewMoveReceived(p: Player, m: OrderedMove): void
 
-    popNextMoveByPlayer(p: Player): Move | undefined
+    popNextMoveByPlayer(p: Player): OrderedMove | undefined
 }
 
 export class PrioritizingLastInputBuffer implements PlayerInputBuffer {
-    private readonly _unprocessedMoves: Map<Player, Move> = new Map<Player, Move>();
+    private readonly _unprocessedMoves: Map<Player, OrderedMove> = new Map<Player, OrderedMove>();
 
-    popNextMoveByPlayer(p: Player): Move | undefined {
+    popNextMoveByPlayer(p: Player): OrderedMove | undefined {
         const nextMove = this._unprocessedMoves.get(p);
         if (nextMove !== undefined) {
             this._unprocessedMoves.delete(p);
@@ -326,7 +336,7 @@ export class PrioritizingLastInputBuffer implements PlayerInputBuffer {
         return nextMove;
     }
 
-    onNewMoveReceived(p: Player, m: Move): void {
+    onNewMoveReceived(p: Player, m: OrderedMove): void {
         const bufferedMove = this._unprocessedMoves.get(p);
 
         if (!bufferedMove || bufferedMove.order < m.order) {

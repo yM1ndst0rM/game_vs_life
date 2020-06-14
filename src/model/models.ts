@@ -246,10 +246,13 @@ export enum MoveType {
 }
 
 export interface Move {
-    readonly order: number,
     readonly type: MoveType,
     readonly origin: {
         readonly x: number,
         readonly y: number
     }
+}
+
+export interface OrderedMove extends Move{
+    readonly order: number
 }
