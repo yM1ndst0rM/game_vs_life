@@ -9,11 +9,13 @@ export class GameLoop {
     private readonly _engine: RulesEngine;
     private _intervalHandle: NodeJS.Timeout | undefined;
     private _isProcessingTick = false;
+    private _inputBuffer: PlayerInputBuffer;
 
-    constructor(tickDuration: number, game: Game, engine: RulesEngine) {
+    constructor(tickDuration: number, game: Game, engine: RulesEngine, inputBuffer: PlayerInputBuffer) {
         this._tickDuration = tickDuration;
         this._game = game;
         this._engine = engine;
+        this._inputBuffer = inputBuffer;
     }
 
 
@@ -45,7 +47,7 @@ export class GameLoop {
             return;
         } else {
             this._isProcessingTick = true;
-            const hasGameEnded = await this._engine.onTick(this._game);
+            const hasGameEnded = await this._engine.onTick(this._game, this._inputBuffer);
             if (hasGameEnded) {
                 this.pause();
             }
@@ -55,32 +57,25 @@ export class GameLoop {
 }
 
 export interface RulesEngine {
-    onTick(game: Game): Promise<boolean>
+    onTick(game: Game, inputBuffer: PlayerInputBuffer): Promise<boolean>
 }
 
 export class BasicRuleEngine implements RulesEngine {
     private static readonly CAN_PLACE_ON_TOP_OF_OTHERS = false;
     private static readonly CAN_PLACE_ON_TOP_OF_SELF = false;
 
-    private readonly _inputBuffer: PlayerInputBuffer;
-
-    constructor(inputBuffer: PlayerInputBuffer) {
-        this._inputBuffer = inputBuffer;
-    }
-
-
-    async onTick(game: Game): Promise<boolean> {
+    async onTick(game: Game, inputBuffer: PlayerInputBuffer): Promise<boolean> {
         //process user actions
         const p1 = game.player1;
         let p1Move: Move | undefined;
         if (p1) {
-            p1Move = this._inputBuffer.popNextMoveByPlayer(p1);
+            p1Move = inputBuffer.popNextMoveByPlayer(p1);
         }
 
         const p2 = game.player1;
         let p2Move: Move | undefined;
         if (p2) {
-            p2Move = this._inputBuffer.popNextMoveByPlayer(p2);
+            p2Move = inputBuffer.popNextMoveByPlayer(p2);
         }
 
         if (p1Move && p2Move) {
