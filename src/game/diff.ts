@@ -2,7 +2,7 @@ import { CellType } from "./const";
 import { Map as GMap, Resources } from "../model/models";
 
 export class Diff {
-    private readonly _parent: Diff | undefined;
+    protected _parent: Diff | undefined;
 
     constructor(parent: Diff | undefined = undefined) {
         this._parent = parent;
@@ -13,6 +13,12 @@ export class Diff {
             this._parent.apply(map, resource);
         }
         this.applyInternal(map, resource);
+    }
+
+    plus(diff: Diff): Diff {
+        diff._parent = this;
+
+        return diff;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,7 +35,7 @@ export class PutCellDiff extends Diff {
     private readonly _type: CellType;
 
 
-    constructor(parent: Diff | undefined, x: number, y: number, type: CellType) {
+    constructor(x: number, y: number, type: CellType, parent: Diff | undefined = undefined) {
         super(parent);
         this._x = x;
         this._y = y;
@@ -43,8 +49,8 @@ export class PutCellDiff extends Diff {
 }
 
 export class ClearCellDiff extends PutCellDiff {
-    constructor(parent: Diff | undefined, x: number, y: number) {
-        super(parent, x, y, CellType.DEAD);
+    constructor(x: number, y: number, parent: Diff | undefined = undefined) {
+        super(x, y, CellType.DEAD, parent);
     }
 }
 
@@ -53,7 +59,7 @@ export class ModifyResDiff extends Diff {
     private readonly _cellType: CellType;
 
 
-    constructor(parent: Diff | undefined, modifyAmount: number, cellType: CellType) {
+    constructor(modifyAmount: number, cellType: CellType, parent: Diff | undefined) {
         super(parent);
         this._modifyAmount = modifyAmount;
         this._cellType = cellType;
