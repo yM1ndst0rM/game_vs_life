@@ -31,6 +31,7 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
     ],
     rules: {
+        "semi": "error",
         "@typescript-eslint/consistent-type-assertions": "error",
         "@typescript-eslint/consistent-type-definitions": "error",
         "@typescript-eslint/no-var-requires": "error",
