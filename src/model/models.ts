@@ -28,7 +28,7 @@ export class Resources {
     readonly cellType: CellType;
     private _cellsAlive = 0;
     private _cellsInInventory = 0;
-    
+
     constructor(type: CellType, startResourceCount: number) {
         this.cellType = type;
         this._cellsInInventory = startResourceCount;
@@ -114,6 +114,21 @@ export class Game {
             return this.player2;
         } else {
             return undefined;
+        }
+    }
+
+    reset(): void {
+        if (this.state !== GameState.NEW) {
+            this._map = new MapImpl(this._map.width, this._map.height);
+            const {START_RESOURCE_COUNT, PLAYER1_CELL_TYPE, PLAYER2_CELL_TYPE} = Const;
+            this._player1_resources = new Resources(PLAYER1_CELL_TYPE, START_RESOURCE_COUNT);
+            this._player2_resources = new Resources(PLAYER2_CELL_TYPE, START_RESOURCE_COUNT);
+        }
+
+        if (this.player1 && this.player2) {
+            this._state = GameState.READY_TO_START;
+        } else {
+            this._state = GameState.WAITING_FOR_PLAYERS;
         }
     }
 
@@ -241,6 +256,6 @@ export interface Move {
     }
 }
 
-export interface OrderedMove extends Move{
+export interface OrderedMove extends Move {
     readonly order: number
 }

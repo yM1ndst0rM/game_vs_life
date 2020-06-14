@@ -32,6 +32,8 @@ class GameManager {
         const newGame = new Game(newId, Const.MAP_DEFAULTS);
         this._games.push(newGame);
 
+        newGame.reset();
+
         return newGame;
     }
 
