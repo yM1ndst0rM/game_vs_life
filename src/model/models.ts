@@ -168,6 +168,20 @@ export class Game {
         this._tick++;
     }
 
+    setPaused(shouldPause: boolean): void {
+        if (this.state === GameState.RUNNING) {
+            if (shouldPause) {
+                this._state = GameState.PAUSED;
+            }
+        } else if (this.state === GameState.PAUSED) {
+            if (!shouldPause) {
+                this._state = GameState.RUNNING;
+            }
+        } else {
+            throw new Error(`Game with Id ${this.id} is in state ${this.state} and cannot be paused or resumed.`);
+        }
+    }
+
     endGame(winner: Player | undefined): void {
         if (this.player1 === winner) {
             this._state = GameState.PLAYER1_WIN;
