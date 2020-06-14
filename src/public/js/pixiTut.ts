@@ -56,34 +56,37 @@ const colorPalette = new Map([
 
 
 //define mapwidth or RECT-width/height ???
-function initializing(content) {
-  rectWidth = content.width;
-  rectHeight = content.height;
-}
+// function initializing(content) {
+//   rectWidth = content.width;
+//   rectHeight = content.height;
+// }
 
 const geometries = new PIXI.Graphics();
 
 const connection: undefined;
 
-connection.onmessage = handleMessage;
+connection.onmessage = renderDeezShit;
 
-function handleMessage(msg) {
-  switch (msg.type) {
-    case 'init':
-      initializing(msg.cntnt);
-    break;
+// function handleMessage(msg) {
+//   switch (msg.type) {
+//     case 'init':
+//       initializing(msg.cntnt);
+//     break;
 
-    case 'refresh':
-      renderDeezShit(msg.cntnt)
-    break;
+//     case 'refresh':
+//       renderDeezShit(msg.cntnt)
+//     break;
 
-    default:
-      console.log('crack');
-    break;
-  }
-}
+//     default:
+//       console.log('crack');
+//     break;
+//   }
+// }
 
 const renderDeezShit = async (inPut) => {
+
+  rectWidth = inPut.width;
+  rectHeight = inPut.height;
 
   if (!inPut) {
     const inPut = [
