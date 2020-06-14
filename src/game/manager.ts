@@ -156,4 +156,4 @@ class GameManager {
     }
 }
 
-export default GameManager;
+export const gameManager = new GameManager();

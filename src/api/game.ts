@@ -1,8 +1,6 @@
 import * as express from "express";
-import GameManager from "../game/manager";
+import { gameManager } from "../game/manager";
 import { constants as http } from "http2";
-
-const gameManager = new GameManager();
 
 const router: express.Router = express.Router();
 
@@ -14,7 +12,7 @@ router.post("/", async function (req: express.Request, res: express.Response, ne
     }
 });
 
-router.post("/:gameId(\\d+)/player/:playerId(\\d+)/leave", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.post("/:gameId(\\d+)/player/:playerId(\\d+)/join", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const gameId = Number(req.params.gameId);
         gameManager.addPlayerToGame(Number(req.params.playerId), gameId);
@@ -37,7 +35,12 @@ router.post("/:gameId(\\d+)/player/:playerId(\\d+)/leave", async function (req: 
 router.get("/:gameId(\\d+)", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const gameId = Number(req.params.gameId);
-        res.status(http.HTTP_STATUS_OK).send(gameManager.getGame(gameId));
+        const game = gameManager.getGame(gameId);
+        if (game) {
+            res.status(http.HTTP_STATUS_OK).send(game);
+        } else {
+            res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
+        }
     } catch (e) {
         next(e);
     }

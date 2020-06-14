@@ -1,8 +1,6 @@
 import * as express from "express";
-import GameManager from "../game/manager";
+import { gameManager } from "../game/manager";
 import { constants as http } from "http2";
-
-const gameManager = new GameManager();
 
 const router: express.Router = express.Router();
 
@@ -18,7 +16,7 @@ router.put("/:playerId(\\d+)/name/:name", async function (req: express.Request, 
     try {
         const player = gameManager.setPlayerName(Number(req.params.playerId), req.params.name);
         const outPlayer = {id: player.id, name: player.name};
-        res.status(http.HTTP_STATUS_CREATED).send(outPlayer);
+        res.status(http.HTTP_STATUS_OK).send(outPlayer);
     } catch (e) {
         next(e);
     }
@@ -29,12 +27,12 @@ router.get("/:playerId(\\d+)", async function (req: express.Request, res: expres
         const playerId = Number(req.params.playerId);
         const player = gameManager.getPlayer(playerId);
 
-        if (!player) {
-            res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
-        } else {
+        if (player) {
             const outPlayer = {id: player.id, name: player.name};
 
             res.status(http.HTTP_STATUS_OK).send(outPlayer);
+        } else {
+            res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
         }
 
     } catch (e) {
