@@ -8,5 +8,6 @@ export const Const = {
         width: 60,
         height: 60
     },
-    PLAYER_KEY_LENGTH: 10
+    PLAYER_KEY_LENGTH: 10,
+    DEFAULT_TICK_DURATION_MS: 1000
 };
