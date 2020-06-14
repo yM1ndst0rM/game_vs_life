@@ -37,10 +37,10 @@ export const STARTING_CONF_P1 =
 const w = Const.MAP_DEFAULTS.width;
 const h = Const.MAP_DEFAULTS.height;
 export const STARTING_CONF_P2 =
-    new PutCellDiff(w - 4, h - 4, Const.PLAYER1_CELL_TYPE)
-        .plus(new PutCellDiff(w - 4, h - 5, Const.PLAYER1_CELL_TYPE))
-        .plus(new PutCellDiff(w - 5, h - 4, Const.PLAYER1_CELL_TYPE))
-        .plus(new PutCellDiff(w - 5, h - 5, Const.PLAYER1_CELL_TYPE))
-        .plus(new PutCellDiff(w - 8, h - 5, Const.PLAYER1_CELL_TYPE))
-        .plus(new PutCellDiff(w - 9, h - 5, Const.PLAYER1_CELL_TYPE))
-        .plus(new PutCellDiff(w - 10, h - 5, Const.PLAYER1_CELL_TYPE));
+    new PutCellDiff(w - 4, h - 4, Const.PLAYER2_CELL_TYPE)
+        .plus(new PutCellDiff(w - 4, h - 5, Const.PLAYER2_CELL_TYPE))
+        .plus(new PutCellDiff(w - 5, h - 4, Const.PLAYER2_CELL_TYPE))
+        .plus(new PutCellDiff(w - 5, h - 5, Const.PLAYER2_CELL_TYPE))
+        .plus(new PutCellDiff(w - 8, h - 5, Const.PLAYER2_CELL_TYPE))
+        .plus(new PutCellDiff(w - 9, h - 5, Const.PLAYER2_CELL_TYPE))
+        .plus(new PutCellDiff(w - 10, h - 5, Const.PLAYER2_CELL_TYPE));
