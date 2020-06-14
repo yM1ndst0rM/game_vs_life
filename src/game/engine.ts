@@ -1,6 +1,7 @@
-import { Game, GameState, Map as GMap, Move, MoveType, OrderedMove, Player, Resources } from "../model/models";
+import { Game, GameState, Map as GMap, Move, MoveType, OrderedMove, Player } from "../model/models";
 import * as debug from "debug";
 import { CellType } from "./const";
+import { ClearCellDiff, Diff, emptyDiff, ModifyResDiff, PutCellDiff } from "./diff";
 
 const log = debug('lvg:engine');
 
@@ -21,10 +22,10 @@ export class GameLoop {
 
 
     play(): void {
-        if (this._game.state === GameState.READY_TO_START) {
-            this._game.startGame(this._tickDuration);
-        } else if (this._game.state === GameState.PAUSED) {
+        if (this._game.state === GameState.PAUSED) {
             this._game.setPaused(false);
+        } else {
+            this._game.startGame(this._tickDuration);
         }
 
         if (!this._intervalHandle) {
@@ -177,7 +178,7 @@ export class BasicRuleEngine implements RulesEngine {
                 }
 
                 if (placementValid) {
-                    return new SetMapDiff(new ModifyResDiff(undefined, -1, cellType), x, y, cellType);
+                    return new PutCellDiff(x, y, cellType).plus(new ModifyResDiff(-1, cellType));
                 } else {
                     return emptyDiff;
                 }
@@ -205,12 +206,12 @@ export class BasicRuleEngine implements RulesEngine {
                 }
 
                 if (this.isLivingCell(map.state[y][x]) && (neighbourCount > 3 || neighbourCount < 2)) {
-                    resultDiff = new ClearMapDiff(resultDiff, x, y);
+                    resultDiff = resultDiff.plus(new ClearCellDiff(x, y));
                 } else if (neighbourCount === 3) {
                     if (containsWarringNeighbours) {
-                        resultDiff = new SetMapDiff(resultDiff, x, y, CellType.NEUTRAL);
+                        resultDiff = resultDiff.plus(new PutCellDiff(x, y, CellType.NEUTRAL));
                     } else {
-                        resultDiff = new SetMapDiff(resultDiff, x, y, me);
+                        resultDiff = resultDiff.plus(new PutCellDiff(x, y, me));
                     }
                 }
             }
@@ -243,71 +244,6 @@ export class BasicRuleEngine implements RulesEngine {
             || type === CellType.PLAYER_C
             || type === CellType.PLAYER_D
             || type === CellType.NEUTRAL;
-    }
-}
-
-class Diff {
-    private readonly _parent: Diff | undefined;
-
-    constructor(parent: Diff | undefined = undefined) {
-        this._parent = parent;
-    }
-
-    apply(map: GMap, resource: Resources | undefined): void {
-        if (this._parent) {
-            this._parent.apply(map, resource);
-        }
-        this.applyInternal(map, resource);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected applyInternal(map: GMap, resource: Resources | undefined): void {
-        /*empty for actual implementations*/
-    }
-}
-
-const emptyDiff = new Diff();
-
-class SetMapDiff extends Diff {
-    private readonly _x: number;
-    private readonly _y: number;
-    private readonly _type: CellType;
-
-
-    constructor(parent: Diff | undefined, x: number, y: number, type: CellType) {
-        super(parent);
-        this._x = x;
-        this._y = y;
-        this._type = type;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected applyInternal(map: GMap, _: Resources | undefined): void {
-        map.state[this._x][this._y] = this._type;
-    }
-}
-
-class ClearMapDiff extends SetMapDiff {
-    constructor(parent: Diff | undefined, x: number, y: number) {
-        super(parent, x, y, CellType.DEAD);
-    }
-}
-
-class ModifyResDiff extends Diff {
-    private readonly _modifyAmount: number;
-    private readonly _cellType: CellType;
-
-
-    constructor(parent: Diff | undefined, modifyAmount: number, cellType: CellType) {
-        super(parent);
-        this._modifyAmount = modifyAmount;
-        this._cellType = cellType;
-    }
-
-    protected applyInternal(map: GMap, resource: Resources | undefined): void {
-        if (resource && resource.cellType === this._cellType) {
-            resource.cellsInInventory += this._modifyAmount;
-        }
     }
 }
 
