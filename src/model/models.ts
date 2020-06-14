@@ -1,4 +1,4 @@
-import { Const } from "../game/const";
+import { CellType, Const } from "../game/const";
 
 export const NOT_SET = -1;
 
@@ -22,18 +22,6 @@ export class Player {
         }
         return result;
     }
-}
-
-export enum CellType {
-    OUT_OF_BOUNDS,
-    OUT_OF_VISION,
-    DEAD,
-    NEUTRAL,
-
-    PLAYER_A,
-    PLAYER_B,
-    PLAYER_C,
-    PLAYER_D,
 }
 
 export class Resources {

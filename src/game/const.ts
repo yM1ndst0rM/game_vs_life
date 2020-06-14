@@ -1,4 +1,15 @@
-import { CellType } from "../model/models";
+export enum CellType {
+    OUT_OF_BOUNDS,
+    OUT_OF_VISION,
+    DEAD,
+    NEUTRAL,
+
+    PLAYER_A,
+    PLAYER_B,
+    PLAYER_C,
+    PLAYER_D,
+}
+
 
 export const Const = {
     START_RESOURCE_COUNT: 100,

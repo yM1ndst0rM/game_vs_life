@@ -1,15 +1,6 @@
-import {
-    CellType,
-    Game,
-    GameState,
-    Map as GMap,
-    Move,
-    MoveType,
-    OrderedMove,
-    Player,
-    Resources
-} from "../model/models";
+import { Game, GameState, Map as GMap, Move, MoveType, OrderedMove, Player, Resources } from "../model/models";
 import * as debug from "debug";
+import { CellType } from "./const";
 
 const log = debug('lvg:engine');
 
@@ -139,6 +130,8 @@ export class BasicRuleEngine implements RulesEngine {
         game.player1Resources.cellsAlive = p1CellCount;
         game.player2Resources.cellsAlive = p2CellCount;
 
+        game.nextTick(game.map, game.player1Resources, game.player2Resources);
+
         //decide if the game is over
         let isGameEnd = false;
         if (p1CellCount <= 0 && p2CellCount <= 0) {
@@ -161,7 +154,7 @@ export class BasicRuleEngine implements RulesEngine {
             const y = move.origin.y;
             if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
                 const cellType = map.state[x][y];
-                let placementValid: boolean;
+                let placementValid = false;
                 switch (cellType) {
                     case CellType.OUT_OF_BOUNDS:
                         placementValid = false;
