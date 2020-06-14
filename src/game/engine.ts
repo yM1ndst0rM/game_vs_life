@@ -1,4 +1,4 @@
-import { CellType, Game, GameState, Map, Move, MoveType, Player, Resources } from "../model/models";
+import { CellType, Game, GameState, GMap, Move, MoveType, Player, Resources } from "../model/models";
 import * as debug from "debug";
 
 const log = debug('lvg:engine');
@@ -74,13 +74,13 @@ export class BasicRuleEngine implements RulesEngine {
         const p1 = game.player1;
         let p1Move: Move | undefined;
         if (p1) {
-            p1Move = this._inputBuffer.getNextMoveByPlayer(p1);
+            p1Move = this._inputBuffer.popNextMoveByPlayer(p1);
         }
 
         const p2 = game.player1;
         let p2Move: Move | undefined;
         if (p2) {
-            p2Move = this._inputBuffer.getNextMoveByPlayer(p2);
+            p2Move = this._inputBuffer.popNextMoveByPlayer(p2);
         }
 
         if (p1Move && p2Move) {
@@ -150,7 +150,7 @@ export class BasicRuleEngine implements RulesEngine {
         return Promise.resolve(isGameEnd);
     }
 
-    private static processPlayerMove(map: Map, move: Move, playerCellType: CellType): Diff {
+    private static processPlayerMove(map: GMap, move: Move, playerCellType: CellType): Diff {
         if (move.type === MoveType.PLACE_CELL) {
             const x = move.origin.x;
             const y = move.origin.y;
@@ -189,7 +189,7 @@ export class BasicRuleEngine implements RulesEngine {
         return emptyDiff;
     }
 
-    private static applyGameOfLifeRules(map: Map): Diff {
+    private static applyGameOfLifeRules(map: GMap): Diff {
         let resultDiff = emptyDiff;
         for (let y = 0; y < map.height; ++y) {
             for (let x = 0; x < map.width; ++x) {
@@ -221,14 +221,14 @@ export class BasicRuleEngine implements RulesEngine {
         return resultDiff;
     }
 
-    private static getCell(map: Map, x: number, y: number): CellType {
+    private static getCell(map: GMap, x: number, y: number): CellType {
         if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
             return map.state[y][x];
         }
         return CellType.OUT_OF_BOUNDS;
     }
 
-    private static* neighbours(map: Map, x: number, y: number) {
+    private static* neighbours(map: GMap, x: number, y: number) {
         yield this.getCell(map, x - 1, y - 1);
         yield this.getCell(map, x, y - 1);
         yield this.getCell(map, x + 1, y - 1);
@@ -255,7 +255,7 @@ class Diff {
         this._parent = parent;
     }
 
-    apply(map: Map, resource: Resources | undefined): void {
+    apply(map: GMap, resource: Resources | undefined): void {
         if (this._parent) {
             this._parent.apply(map, resource);
         }
@@ -263,7 +263,7 @@ class Diff {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected applyInternal(map: Map, resource: Resources | undefined): void {
+    protected applyInternal(map: GMap, resource: Resources | undefined): void {
         /*empty for actual implementations*/
     }
 }
@@ -284,7 +284,7 @@ class SetMapDiff extends Diff {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected applyInternal(map: Map, _: Resources | undefined): void {
+    protected applyInternal(map: GMap, _: Resources | undefined): void {
         map.state[this._x][this._y] = this._type;
     }
 }
@@ -306,7 +306,7 @@ class ModifyResDiff extends Diff {
         this._cellType = cellType;
     }
 
-    protected applyInternal(map: Map, resource: Resources | undefined): void {
+    protected applyInternal(map: GMap, resource: Resources | undefined): void {
         if (resource && resource.cellType === this._cellType) {
             resource.cellsInInventory += this._modifyAmount;
         }
@@ -314,5 +314,29 @@ class ModifyResDiff extends Diff {
 }
 
 export interface PlayerInputBuffer {
-    getNextMoveByPlayer(p: Player): Move | undefined
+    onNewMoveReceived(p: Player, m: Move): void
+
+    popNextMoveByPlayer(p: Player): Move | undefined
+}
+
+export class PrioritizingLastInputBuffer implements PlayerInputBuffer {
+    private readonly _unprocessedMoves: Map<Player, Move> = new Map<Player, Move>();
+
+    popNextMoveByPlayer(p: Player): Move | undefined {
+        const nextMove = this._unprocessedMoves.get(p);
+        if (nextMove !== undefined) {
+            this._unprocessedMoves.delete(p);
+        }
+
+        return nextMove;
+    }
+
+    onNewMoveReceived(p: Player, m: Move): void {
+        const bufferedMove = this._unprocessedMoves.get(p);
+
+        if (!bufferedMove || bufferedMove.order < m.order) {
+            this._unprocessedMoves.set(p, m);
+        }
+    }
+
 }
