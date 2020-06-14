@@ -1,4 +1,4 @@
-import { CellType, Const } from "../game/const";
+import { CellType, Const, STARTING_CONF_P1, STARTING_CONF_P2 } from "../game/const";
 
 export const NOT_SET = -1;
 
@@ -124,6 +124,9 @@ export class Game {
             this._player1_resources = new Resources(PLAYER1_CELL_TYPE, START_RESOURCE_COUNT);
             this._player2_resources = new Resources(PLAYER2_CELL_TYPE, START_RESOURCE_COUNT);
         }
+
+        STARTING_CONF_P1.apply(this._map, this.player1Resources);
+        STARTING_CONF_P2.apply(this._map, this.player2Resources);
 
         if (this.player1 && this.player2) {
             this._state = GameState.READY_TO_START;
