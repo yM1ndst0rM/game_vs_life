@@ -1,5 +1,5 @@
 import * as express from "express";
-import GameManager from "./manager";
+import GameManager from "../game/manager";
 import { constants as http } from "http2";
 
 const gameManager = new GameManager();
