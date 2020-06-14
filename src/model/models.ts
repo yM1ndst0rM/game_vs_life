@@ -10,10 +10,10 @@ export class Player {
     constructor(id: number) {
         this.id = id;
         this.name = `Player ${id}`;
-        this.secretKey = this.makeKey(Const.PLAYER_KEY_LENGTH);
+        this.secretKey = Player.makeKey(Const.PLAYER_KEY_LENGTH);
     }
 
-    private makeKey(length: number): string {
+    private static makeKey(length: number): string {
         let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const charactersLength = characters.length;
@@ -36,10 +36,31 @@ export enum CellType {
     PLAYER_D,
 }
 
-export interface Resources {
-    readonly cellType: CellType,
-    readonly cellsAlive: number,
-    readonly cellsInInventory: number,
+export class Resources {
+    readonly cellType: CellType;
+    private _cellsAlive = 0;
+    private _cellsInInventory = 0;
+    
+    constructor(type: CellType, startResourceCount: number) {
+        this.cellType = type;
+        this._cellsInInventory = startResourceCount;
+    }
+
+    get cellsInInventory(): number {
+        return this._cellsInInventory;
+    }
+
+    set cellsInInventory(value: number) {
+        this._cellsInInventory = value;
+    }
+
+    get cellsAlive(): number {
+        return this._cellsAlive;
+    }
+
+    set cellsAlive(value: number) {
+        this._cellsAlive = value;
+    }
 }
 
 export class Game {
@@ -57,16 +78,8 @@ export class Game {
         this._id = id;
         this._map = new MapImpl(mapsize.width, mapsize.height);
         const {START_RESOURCE_COUNT, PLAYER1_CELL_TYPE, PLAYER2_CELL_TYPE} = Const;
-        this._player1_resources = {
-            cellType: PLAYER1_CELL_TYPE,
-            cellsAlive: 0,
-            cellsInInventory: START_RESOURCE_COUNT
-        };
-        this._player2_resources = {
-            cellType: PLAYER2_CELL_TYPE,
-            cellsAlive: 0,
-            cellsInInventory: START_RESOURCE_COUNT
-        };
+        this._player1_resources = new Resources(PLAYER1_CELL_TYPE, START_RESOURCE_COUNT);
+        this._player2_resources = new Resources(PLAYER2_CELL_TYPE, START_RESOURCE_COUNT);
     }
 
 
@@ -233,6 +246,7 @@ export enum MoveType {
 }
 
 export interface Move {
+    readonly order: number,
     readonly type: MoveType,
     readonly origin: {
         readonly x: number,
