@@ -3,6 +3,9 @@ const ts = require('gulp-typescript');
 const tsProject = ts.createProject('tsconfig.json');
 const gulpEslint = require("gulp-eslint");
 const sourcemaps = require("gulp-sourcemaps");
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
+const tsify = require('tsify');
 
 const del = require("del");
 
@@ -46,7 +49,21 @@ function exportPublicNonScriptAssets() {
     return gulp.src(paths.publicAssets).pipe(gulp.dest(paths.dist + "/public"));
 }
 
-gulp.task("default", gulp.series(lint, compileDebug, exportPublicNonScriptAssets));
+function browserifyPublicScripts(){
+    return browserify({
+        basedir: '.',
+        debug: true,
+        entries: ['src/public/js/pixiTut.ts'],
+        cache: {},
+        packageCache: {}
+    })
+    .plugin(tsify)
+    .bundle()
+    .pipe(source('public/js/bundle.js'))
+    .pipe(gulp.dest(paths.dist));
+}
+
+gulp.task("default", gulp.series(lint, compileDebug, gulp.parallel(exportPublicNonScriptAssets, browserifyPublicScripts)));
 
 gulp.task(lint)
 
