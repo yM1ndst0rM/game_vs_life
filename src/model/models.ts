@@ -238,7 +238,7 @@ export class MapImpl implements Map {
         this.state = Array(this.height);
 
         for (let i = 0; i < this.state.length; ++i) {
-            this.state[i] = Array(this.width);
+            this.state[i] = Array(this.width).fill(CellType.DEAD);
         }
     }
 
