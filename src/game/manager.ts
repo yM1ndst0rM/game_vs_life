@@ -88,7 +88,7 @@ class GameManager {
         }
     }
 
-    startGame(gameId: number): void {
+    startGame(gameId: number): Game {
         const targetGame = this.getGame(gameId);
         if (!targetGame) {
             throw new Error(`Game with Id ${gameId} does not exist, and thus cannot be started.`);
@@ -99,9 +99,11 @@ class GameManager {
         this._runningGames.set(targetGame, gameLoop);
         this._inputBuffers.set(targetGame, inputBuffer);
         gameLoop.play();
+
+        return targetGame;
     }
 
-    pauseGame(gameId: number): void {
+    pauseGame(gameId: number): Game {
         const targetGame = this.getGame(gameId);
         if (!targetGame) {
             throw new Error(`Game with Id ${gameId} does not exist, and thus cannot be paused.`);
@@ -111,9 +113,11 @@ class GameManager {
         if (gameLoop) {
             gameLoop.pause();
         }
+
+        return targetGame;
     }
 
-    unpauseGame(gameId: number): void {
+    unpauseGame(gameId: number): Game {
         const targetGame = this.getGame(gameId);
         if (!targetGame) {
             throw new Error(`Game with Id ${gameId} does not exist, and thus cannot be unpaused.`);
@@ -123,6 +127,8 @@ class GameManager {
         if (gameLoop) {
             gameLoop.play();
         }
+
+        return targetGame;
     }
 
     makeMove(gameId: number, playerId: number, playerKey: string, move: Move): void {
