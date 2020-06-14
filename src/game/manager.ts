@@ -1,4 +1,4 @@
-import { Game, Player } from "../model/models";
+import { Game, Move, Player } from "../model/models";
 import { Const } from "./Const";
 import { BasicRuleEngine, GameLoop, PlayerInputBuffer, PrioritizingLastInputBuffer } from "./engine";
 
@@ -7,7 +7,8 @@ class GameManager {
     private readonly _players: Array<Player> = [];
     private readonly _playersInGames: Map<Player, Game> = new Map();
     private readonly _runningGames: Map<Game, GameLoop> = new Map<Game, GameLoop>();
-    private readonly _inputBuffer: PlayerInputBuffer = new PrioritizingLastInputBuffer();
+    private readonly _inputBuffers: Map<Game, PlayerInputBuffer> = new Map<Game, PlayerInputBuffer>();
+    private _nextMoveOrderNumber = 0;
 
 
     getGame(gameId: number): Game | undefined {
@@ -83,8 +84,10 @@ class GameManager {
             throw new Error(`Game with Id ${gameId} does not exist, and thus cannot be started.`);
         }
 
-        const gameLoop = new GameLoop(Const.DEFAULT_TICK_DURATION_MS, targetGame, new BasicRuleEngine(), this._inputBuffer);
+        const inputBuffer = new PrioritizingLastInputBuffer();
+        const gameLoop = new GameLoop(Const.DEFAULT_TICK_DURATION_MS, targetGame, new BasicRuleEngine(), inputBuffer);
         this._runningGames.set(targetGame, gameLoop);
+        this._inputBuffers.set(targetGame, inputBuffer);
         gameLoop.play();
     }
 
@@ -110,6 +113,30 @@ class GameManager {
         if (gameLoop) {
             gameLoop.play();
         }
+    }
+
+    makeMove(gameId: number, playerId: number, playerKey: string, move: Move): void {
+        const targetGame = this.getGame(gameId);
+        if (!targetGame) {
+            throw new Error(`Game with Id ${gameId} does not exist, and thus no moves can be performed for it.`);
+        }
+
+        const player = this.getPlayer(playerId);
+        if (player === undefined) {
+            throw new Error(`Player Id ${playerId} unknown.`);
+        } else if (player.secretKey !== playerKey) {
+            throw new Error(`Player authentication failed.`);
+        }
+
+        const input = this._inputBuffers.get(targetGame);
+        if (!input) {
+            throw new Error(`No player move input stream associated with game ${gameId}. Maybe the game hasn't started?`);
+        }
+
+        input.onNewMoveReceived(player, {
+            ...move,
+            order: this._nextMoveOrderNumber++
+        });
     }
 }
 
