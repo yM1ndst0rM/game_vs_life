@@ -178,7 +178,7 @@ export class BasicRuleEngine implements RulesEngine {
                 }
 
                 if (placementValid) {
-                    return new PutCellDiff(new ModifyResDiff(undefined, -1, cellType), x, y, cellType);
+                    return new PutCellDiff(x, y, cellType).plus(new ModifyResDiff(-1, cellType));
                 } else {
                     return emptyDiff;
                 }
@@ -206,12 +206,12 @@ export class BasicRuleEngine implements RulesEngine {
                 }
 
                 if (this.isLivingCell(map.state[y][x]) && (neighbourCount > 3 || neighbourCount < 2)) {
-                    resultDiff = new ClearCellDiff(resultDiff, x, y);
+                    resultDiff = resultDiff.plus(new ClearCellDiff(x, y));
                 } else if (neighbourCount === 3) {
                     if (containsWarringNeighbours) {
-                        resultDiff = new PutCellDiff(resultDiff, x, y, CellType.NEUTRAL);
+                        resultDiff = resultDiff.plus(new PutCellDiff(x, y, CellType.NEUTRAL));
                     } else {
-                        resultDiff = new PutCellDiff(resultDiff, x, y, me);
+                        resultDiff = resultDiff.plus(new PutCellDiff(x, y, me));
                     }
                 }
             }

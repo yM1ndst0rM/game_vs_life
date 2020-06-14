@@ -4,10 +4,6 @@ import { Map as GMap, Resources } from "../model/models";
 export class Diff {
     protected _parent: Diff | undefined;
 
-    constructor(parent: Diff | undefined = undefined) {
-        this._parent = parent;
-    }
-
     apply(map: GMap, resource: Resources | undefined): void {
         if (this._parent) {
             this._parent.apply(map, resource);
@@ -35,8 +31,8 @@ export class PutCellDiff extends Diff {
     private readonly _type: CellType;
 
 
-    constructor(x: number, y: number, type: CellType, parent: Diff | undefined = undefined) {
-        super(parent);
+    constructor(x: number, y: number, type: CellType) {
+        super();
         this._x = x;
         this._y = y;
         this._type = type;
@@ -49,8 +45,8 @@ export class PutCellDiff extends Diff {
 }
 
 export class ClearCellDiff extends PutCellDiff {
-    constructor(x: number, y: number, parent: Diff | undefined = undefined) {
-        super(x, y, CellType.DEAD, parent);
+    constructor(x: number, y: number) {
+        super(x, y, CellType.DEAD);
     }
 }
 
@@ -59,8 +55,8 @@ export class ModifyResDiff extends Diff {
     private readonly _cellType: CellType;
 
 
-    constructor(modifyAmount: number, cellType: CellType, parent: Diff | undefined) {
-        super(parent);
+    constructor(modifyAmount: number, cellType: CellType) {
+        super();
         this._modifyAmount = modifyAmount;
         this._cellType = cellType;
     }
