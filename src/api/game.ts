@@ -53,4 +53,32 @@ router.put("/:gameId(\\d+)/player/:playerId(\\d+)/move", async function (req: ex
     }
 });
 
+router.post("/:gameId(\\d+)/start", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const gameId = Number(req.params.gameId);
+        res.status(http.HTTP_STATUS_OK).send(gameManager.startGame(gameId));
+    } catch (e) {
+        next(e);
+    }
+});
+
+router.post("/:gameId(\\d+)/pause", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const gameId = Number(req.params.gameId);
+        res.status(http.HTTP_STATUS_OK).send(gameManager.pauseGame(gameId));
+    } catch (e) {
+        next(e);
+    }
+});
+
+router.post("/:gameId(\\d+)/resume", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const gameId = Number(req.params.gameId);
+        res.status(http.HTTP_STATUS_OK).send(gameManager.unpauseGame(gameId));
+    } catch (e) {
+        next(e);
+    }
+});
+
+
 export default router;
