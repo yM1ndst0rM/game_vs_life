@@ -43,6 +43,16 @@ class GameManager {
         return newPlayer;
     }
 
+    setPlayerName(playerId: number, name: string): Player {
+        const player = this.getPlayer(playerId);
+        if (player === undefined) {
+            throw new Error(`Player Id ${playerId} unknown. Cannot find player to set name to ${name}`);
+        }
+
+        player.name = name;
+        return player;
+    }
+
 
     addPlayerToGame(playerId: number, gameId: number): void {
         const player = this.getPlayer(playerId);

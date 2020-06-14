@@ -4,7 +4,7 @@ export const NOT_SET = -1;
 
 export class Player {
     readonly id: number;
-    readonly name: string;
+    name: string;
     readonly secretKey: string;
 
     constructor(id: number) {
