@@ -22,10 +22,10 @@ export class GameLoop {
 
 
     play(): void {
-        if (this._game.state === GameState.READY_TO_START) {
-            this._game.startGame(this._tickDuration);
-        } else if (this._game.state === GameState.PAUSED) {
+        if (this._game.state === GameState.PAUSED) {
             this._game.setPaused(false);
+        } else {
+            this._game.startGame(this._tickDuration);
         }
 
         if (!this._intervalHandle) {
