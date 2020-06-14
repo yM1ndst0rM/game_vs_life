@@ -52,3 +52,5 @@ router.put("/:gameId(\\d+)/player/:playerId(\\d+)/move", async function (req: ex
         next(e);
     }
 });
+
+export default router;
