@@ -1,4 +1,4 @@
-import { Const } from "../game/Const";
+import { Const } from "../game/const";
 
 export const NOT_SET = -1;
 

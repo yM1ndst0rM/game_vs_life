@@ -1,5 +1,5 @@
 import { Game, Move, Player } from "../model/models";
-import { Const } from "./Const";
+import { Const } from "./const";
 import { BasicRuleEngine, GameLoop, PlayerInputBuffer, PrioritizingLastInputBuffer } from "./engine";
 
 class GameManager {
