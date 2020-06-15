@@ -4,6 +4,7 @@ import { constants as http } from "http2";
 
 const router: express.Router = express.Router();
 const bearerRegEx = RegExp("Bearer .*");
+const bearerTokenStart = 7;
 
 router.all("/:playerId(\\d+)/.*", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
@@ -18,7 +19,7 @@ router.all("/:playerId(\\d+)/.*", async function (req: express.Request, res: exp
             if (!player) {
                 res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
             } else {
-                if (bearerToken?.substr(7) !== player.secretKey) {
+                if (bearerToken?.substr(bearerTokenStart) !== player.secretKey) {
                     res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
                 } else {
                     next();
