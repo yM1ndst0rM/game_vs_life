@@ -1,5 +1,4 @@
-import * as PIXI from 'pixi.js'
-import * as getState from './rest'
+import * as PIXI from 'pixi.js';
 
 let type = "WebGL";
 if (!PIXI.utils.isWebGLSupported()) {
@@ -61,7 +60,7 @@ const geometries = new PIXI.Graphics();
 
 const renderDeezShit = (inPut: any) => {
   
-  inPut.bla._dfsgfg
+  inPut.bla._dfsgfg;
   if (!lastState <= inPut._state) {
     return;
   }
@@ -89,7 +88,7 @@ const renderDeezShit = (inPut: any) => {
   } finally {
     app.stage.addChild(geometries);
   }
-}
+};
 
 document.body.appendChild(app.view);
 
