@@ -10,7 +10,7 @@ router.all("/:playerId(\\d+)/.*", async function (req: express.Request, res: exp
     try {
         const bearerToken = req.header(http.HTTP2_HEADER_AUTHORIZATION);
 
-        if (!bearerToken || bearerRegEx.test(bearerToken)) {
+        if (!bearerToken || !bearerRegEx.test(bearerToken)) {
             res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
         } else {
             const playerId = Number(req.params.playerId);
