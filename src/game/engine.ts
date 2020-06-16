@@ -4,7 +4,7 @@ import { CellType } from "./const";
 import { ClearCellDiff, Diff, emptyDiff, ModifyResDiff, PutCellDiff } from "./diff";
 
 const log = debug('lvg:engine');
-
+//TODO fix reference equals comparisons
 export class GameLoop {
     private readonly _tickDuration: number;
     private readonly _game: Game;

@@ -9,6 +9,7 @@ class GameManager {
     private readonly _inputBuffers: Map<Game, PlayerInputBuffer> = new Map<Game, PlayerInputBuffer>();
     private _nextMoveOrderNumber = 0;
 
+    //TODO fix reference equals comparisons
     addPlayerToGame(player: Player, game: Game): void {
         const preExistingGame = this._playersInGames.get(player);
         if (preExistingGame) {

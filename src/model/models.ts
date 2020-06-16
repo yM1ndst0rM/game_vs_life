@@ -46,6 +46,7 @@ export class Resources {
     }
 }
 
+//TODO fix reference equals comparisons
 export class Game {
     private readonly _id: number = NOT_SET;
     private _tick = 0;
