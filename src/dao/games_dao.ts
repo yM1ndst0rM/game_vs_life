@@ -1,7 +1,7 @@
 import { Game } from "../model/models";
 import { Const } from "../game/const";
 
-export class Games {
+class Games {
     private readonly _games: Array<Game> = [];
 
     getGame(gameId: number): Game | undefined {
@@ -21,7 +21,6 @@ export class Games {
 
         return newGame;
     }
-
-
-
 }
+
+export default new Games();

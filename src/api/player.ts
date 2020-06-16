@@ -1,29 +1,27 @@
 import * as express from "express";
 import { gameManager } from "../game/manager";
 import { constants as http } from "http2";
+import Players from "../dao/players_dao";
+import Games from "../dao/games_dao";
 
 const router: express.Router = express.Router();
-const bearerRegEx = RegExp("Bearer .*");
-const bearerTokenStart = 7;
+const bearerRegEx = RegExp("^Bearer (.*)$");
 
 const auth = async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const bearerToken = req.header(http.HTTP2_HEADER_AUTHORIZATION);
 
-        if (!bearerToken || !bearerRegEx.test(bearerToken)) {
+        const parsedToken = bearerRegEx.exec(bearerToken ?? "");
+        if (!parsedToken || !parsedToken.groups) {
             res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
         } else {
-            const playerId = Number(req.params.playerId);
-            const player = gameManager.getPlayer(playerId);
+            const player = Players.getAuthorizedPlayer(parsedToken.groups["1"]);
 
             if (!player) {
-                res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
+                res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
             } else {
-                if (bearerToken?.substr(bearerTokenStart) !== player.secretKey) {
-                    res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
-                } else {
-                    next();
-                }
+                res.locals.player = player;
+                next();
             }
         }
     } catch (e) {
@@ -33,15 +31,15 @@ const auth = async function (req: express.Request, res: express.Response, next: 
 
 router.post("/", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        res.status(http.HTTP_STATUS_CREATED).send(gameManager.createPlayer());
+        res.status(http.HTTP_STATUS_CREATED).send(Players.createPlayer());
     } catch (e) {
         next(e);
     }
 });
 
-router.put("/:playerId(\\d+)/name/:name", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.put("/name/:name", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const player = gameManager.setPlayerName(Number(req.params.playerId), req.params.name);
+        const player = Players.setPlayerName(res.locals.player.id, req.params.name);
         const outPlayer = {id: player.id, name: player.name};
         res.status(http.HTTP_STATUS_OK).send(outPlayer);
     } catch (e) {
@@ -49,15 +47,12 @@ router.put("/:playerId(\\d+)/name/:name", auth, async function (req: express.Req
     }
 });
 
-router.get("/:playerId(\\d+)",  async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.get("/:playerId(\\d+)", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const playerId = Number(req.params.playerId);
-        const player = gameManager.getPlayer(playerId);
+        const player = Players.getPlayer(Number.parseInt(req.params.playerId));
 
         if (player) {
-            const outPlayer = {id: player.id, name: player.name};
-
-            res.status(http.HTTP_STATUS_OK).send(outPlayer);
+            res.status(http.HTTP_STATUS_OK).send(player);
         } else {
             res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
         }
@@ -67,11 +62,17 @@ router.get("/:playerId(\\d+)",  async function (req: express.Request, res: expre
     }
 });
 
-router.post("/:playerId(\\d+)/game/:gameId(\\d+)/join", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.post("/join/game/:gameId(\\d+)", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const gameId = Number(req.params.gameId);
-        gameManager.addPlayerToGame(Number(req.params.playerId), gameId);
-        res.status(http.HTTP_STATUS_ACCEPTED).send(gameManager.getGame(gameId));
+        const gameId = Number.parseInt(req.params.gameId);
+        const game = Games.getGame(gameId);
+
+        if (game) {
+            gameManager.addPlayerToGame(res.locals.player, game);
+            res.status(http.HTTP_STATUS_ACCEPTED).send(Games.getGame(gameId));
+        } else {
+            next(new Error(`Game with Id ${gameId} does not exist, and thus cannot be joined.`));
+        }
     } catch (e) {
         next(e);
     }
@@ -79,9 +80,14 @@ router.post("/:playerId(\\d+)/game/:gameId(\\d+)/join", auth, async function (re
 
 router.post("/:playerId(\\d+)/game/:gameId(\\d+)/leave", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const gameId = Number(req.params.gameId);
-        gameManager.removePlayerFromGame(Number(req.params.playerId), gameId);
-        res.status(http.HTTP_STATUS_ACCEPTED).send(gameManager.getGame(gameId));
+        const gameId = Number.parseInt(req.params.gameId);
+        const game = Games.getGame(gameId);
+
+        if (game) {
+            gameManager.removePlayerFromGame(res.locals.player, game);
+        }
+
+        res.status(http.HTTP_STATUS_ACCEPTED).send(Games.getGame(gameId));
     } catch (e) {
         next(e);
     }
@@ -89,9 +95,16 @@ router.post("/:playerId(\\d+)/game/:gameId(\\d+)/leave", auth, async function (r
 
 router.put("/:playerId(\\d+)/game/:gameId(\\d+)/move", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const gameId = Number(req.params.gameId);
-        gameManager.makeMove(gameId, Number(req.params.playerId), req.header(http.HTTP2_HEADER_WWW_AUTHENTICATE) ?? "", req.body);
-        res.status(http.HTTP_STATUS_ACCEPTED).send(gameManager.getGame(gameId));
+        const gameId = Number.parseInt(req.params.gameId);
+        const game = Games.getGame(gameId);
+
+        if (game) {
+            gameManager.makeMove(game, res.locals.player, req.body);
+            res.status(http.HTTP_STATUS_ACCEPTED).send(Games.getGame(gameId));
+        } else {
+            next(new Error(`Game with Id ${gameId} does not exist, so no moves can be made.`));
+        }
+
     } catch (e) {
         next(e);
     }

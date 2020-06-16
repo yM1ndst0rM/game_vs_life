@@ -14,6 +14,18 @@ class Players {
         return undefined;
     }
 
+    getAuthorizedPlayer(authToken: string): Player | undefined {
+        const id = Players.getIdFromBearerToken(authToken);
+        if (id) {
+            const p = this.getPlayerObj(id);
+            if (p && p.secretKey === authToken) {
+                return Players.deleteSensitiveInfo(p);
+            }
+        }
+
+        return undefined;
+    }
+
     private getPlayerObj(playerId: number): PlayerWithAuth | undefined {
         if (playerId < 0 || playerId >= this._players.length) {
             return undefined;
@@ -64,10 +76,10 @@ class Players {
     private static readonly INVALID_TOKEN = -1;
     private static readonly tokenRegEx = RegExp("^(\\d+)\\/(.*)$");
 
-    private static getIdFromBearerToken(token: string): number {
+    private static getIdFromBearerToken(token: string): number | undefined {
         const parsedKey = this.tokenRegEx.exec(token);
         if (!parsedKey || !parsedKey.groups) {
-            return this.INVALID_TOKEN;
+            return undefined;
         }
 
         return Number(parsedKey.groups["1"]);

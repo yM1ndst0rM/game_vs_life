@@ -53,6 +53,11 @@ class GameManager {
 
     makeMove(targetGame: Game, player: Player, move: Move): void {
         const input = this._inputBuffers.get(targetGame);
+        const playerGame = this._playersInGames.get(player);
+
+        if (playerGame !== targetGame || (targetGame.player1 !== player && targetGame.player2 !== player)) {
+            throw new Error(`Player (Id:${player.id}) is not in game (Id:${targetGame.id}). Join the game to be able to perform moves.`);
+        }
         if (!input) {
             throw new Error(`No player move input stream associated with game ${targetGame.id}. Maybe the game hasn't started?`);
         }
