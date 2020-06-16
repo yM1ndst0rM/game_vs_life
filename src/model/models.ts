@@ -2,26 +2,21 @@ import { CellType, Const, STARTING_CONF_P1, STARTING_CONF_P2 } from "../game/con
 
 export const NOT_SET = -1;
 
-export class Player {
+export class PlayerWithAuth implements Player{
     readonly id: number;
     name: string;
     readonly secretKey: string;
 
-    constructor(id: number) {
+    constructor(id: number, securityKey: string) {
         this.id = id;
         this.name = `Player ${id}`;
-        this.secretKey = Player.makeKey(Const.PLAYER_KEY_LENGTH);
+        this.secretKey = securityKey;
     }
+}
 
-    private static makeKey(length: number): string {
-        let result = '';
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const charactersLength = characters.length;
-        for (let i = 0; i < length; ++i) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-        return result;
-    }
+export interface Player {
+    readonly id: number;
+    readonly name: string;
 }
 
 export class Resources {
