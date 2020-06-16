@@ -12,10 +12,10 @@ const auth = async function (req: express.Request, res: express.Response, next: 
         const bearerToken = req.header(http.HTTP2_HEADER_AUTHORIZATION);
 
         const parsedToken = bearerRegEx.exec(bearerToken ?? "");
-        if (!parsedToken || !parsedToken.groups) {
+        if (!parsedToken || !parsedToken[1]) {
             res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
         } else {
-            const player = Players.getAuthorizedPlayer(parsedToken.groups["1"]);
+            const player = Players.getAuthorizedPlayer(parsedToken[1]);
 
             if (!player) {
                 res.sendStatus(http.HTTP_STATUS_UNAUTHORIZED);
@@ -37,11 +37,11 @@ router.post("/", async function (req: express.Request, res: express.Response, ne
     }
 });
 
-router.put("/name/:name", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.put("/self/name/:name", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const player = Players.setPlayerName(res.locals.player.id, req.params.name);
-        const outPlayer = {id: player.id, name: player.name};
-        res.status(http.HTTP_STATUS_OK).send(outPlayer);
+
+        res.status(http.HTTP_STATUS_OK).send(player);
     } catch (e) {
         next(e);
     }
@@ -62,7 +62,15 @@ router.get("/:playerId(\\d+)", async function (req: express.Request, res: expres
     }
 });
 
-router.post("/join/game/:gameId(\\d+)", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.get("/self", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        res.status(http.HTTP_STATUS_OK).send(res.locals.player);
+    } catch (e) {
+        next(e);
+    }
+});
+
+router.post("/self/game/:gameId(\\d+)/join", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const gameId = Number.parseInt(req.params.gameId);
         const game = Games.getGame(gameId);
@@ -78,7 +86,7 @@ router.post("/join/game/:gameId(\\d+)", auth, async function (req: express.Reque
     }
 });
 
-router.post("/:playerId(\\d+)/game/:gameId(\\d+)/leave", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.post("/self/game/:gameId(\\d+)/leave", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const gameId = Number.parseInt(req.params.gameId);
         const game = Games.getGame(gameId);
@@ -93,7 +101,7 @@ router.post("/:playerId(\\d+)/game/:gameId(\\d+)/leave", auth, async function (r
     }
 });
 
-router.put("/:playerId(\\d+)/game/:gameId(\\d+)/move", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.put("/self/game/:gameId(\\d+)/move", auth, async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const gameId = Number.parseInt(req.params.gameId);
         const game = Games.getGame(gameId);

@@ -14,11 +14,12 @@ router.post("/", async function (req: express.Request, res: express.Response, ne
     }
 });
 
-router.all("/:gameId(\\d+)", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+router.all("/:gameId(\\d+)*", async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const game = Games.getGame(Number.parseInt(req.params.gameId));
         if (game) {
             res.locals.game = game;
+            next();
         } else {
             res.sendStatus(http.HTTP_STATUS_NOT_FOUND);
         }

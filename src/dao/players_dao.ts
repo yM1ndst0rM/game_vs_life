@@ -16,7 +16,7 @@ class Players {
 
     getAuthorizedPlayer(authToken: string): Player | undefined {
         const id = Players.getIdFromBearerToken(authToken);
-        if (id) {
+        if (id !== undefined) {
             const p = this.getPlayerObj(id);
             if (p && p.secretKey === authToken) {
                 return Players.deleteSensitiveInfo(p);
@@ -73,16 +73,15 @@ class Players {
         return `${id}/${securityKey}`;
     }
 
-    private static readonly INVALID_TOKEN = -1;
     private static readonly tokenRegEx = RegExp("^(\\d+)\\/(.*)$");
 
     private static getIdFromBearerToken(token: string): number | undefined {
         const parsedKey = this.tokenRegEx.exec(token);
-        if (!parsedKey || !parsedKey.groups) {
+        if (!parsedKey || !parsedKey[1]) {
             return undefined;
         }
 
-        return Number(parsedKey.groups["1"]);
+        return Number(parsedKey[1]);
     }
 }
 
