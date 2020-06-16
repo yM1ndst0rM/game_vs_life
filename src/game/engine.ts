@@ -4,14 +4,14 @@ import { CellType } from "./const";
 import { ClearCellDiff, Diff, emptyDiff, ModifyResDiff, PutCellDiff } from "./diff";
 
 const log = debug('lvg:engine');
-
+//TODO fix reference equals comparisons
 export class GameLoop {
     private readonly _tickDuration: number;
     private readonly _game: Game;
     private readonly _engine: RulesEngine;
+    private readonly _inputBuffer: PlayerInputBuffer;
     private _intervalHandle: NodeJS.Timeout | undefined;
     private _isProcessingTick = false;
-    private _inputBuffer: PlayerInputBuffer;
 
     constructor(tickDuration: number, game: Game, engine: RulesEngine, inputBuffer: PlayerInputBuffer) {
         this._tickDuration = tickDuration;

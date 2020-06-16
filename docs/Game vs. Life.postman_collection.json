@@ -1,0 +1,387 @@
+{
+	"info": {
+		"_postman_id": "b0ba74b4-01c5-4a1c-98b7-33089f911059",
+		"name": "Game vs. Life",
+		"description": "Conway's Game of Life RTS API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "game",
+			"item": [
+				{
+					"name": "new game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "01380912-efba-4bba-bf5b-b708595a70d5",
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    var res = pm.response.json();\r",
+									"\r",
+									"    pm.environment.set(\"current_game_id\", res._id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/game",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game"
+							]
+						},
+						"description": "Create new game"
+					},
+					"response": []
+				},
+				{
+					"name": "game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ccf08255-1f44-41ec-8863-86510c71941b",
+								"exec": [
+									"var template = `\r",
+									"    <style type=\"text/css\">\r",
+									"        table {   border: 1px solid black;  table-layout: fixed;  width: 800px; height: 800px;}\r",
+									"        th, td {border-width: 1px;border-style: solid;border-color: #87ceeb88; max-width: 40px; overflow: hidden;}\r",
+									"\r",
+									"        .c_0 {background-color: gray;}\r",
+									"        .c_1 {background-color: blue;}\r",
+									"        .c_2 {background-color: black;}\r",
+									"        .c_3 {background-color: white;}\r",
+									"        .c_4 {background-color: teal;}\r",
+									"        .c_5 {background-color: yellow;}\r",
+									"    </style>\r",
+									"    \r",
+									"    <table class=\"map\" border=\"1\">\r",
+									"        {{#each map}}\r",
+									"            <tr id=row_{{@key}}>\r",
+									"                {{#each this}}\r",
+									"                    <td id={{@key}} class=c_{{this}}>\r",
+									"                    <div class=\"cell\"></div>\r",
+									"                    </td>\r",
+									"                {{/each}}\r",
+									"            </tr>\r",
+									"        {{/each}}\r",
+									"    </table>\r",
+									"`;\r",
+									"\r",
+									"pm.visualizer.set(template, {\r",
+									"    map: pm.response.json()._map.state\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/game/{{current_game_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game",
+								"{{current_game_id}}"
+							]
+						},
+						"description": "Request game update"
+					},
+					"response": []
+				},
+				{
+					"name": "start game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/game/{{current_game_id}}/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game",
+								"{{current_game_id}}",
+								"start"
+							]
+						},
+						"description": "Start a specific game"
+					},
+					"response": []
+				},
+				{
+					"name": "pause game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/game/{{current_game_id}}/pause",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game",
+								"{{current_game_id}}",
+								"pause"
+							]
+						},
+						"description": "Pause a running game"
+					},
+					"response": []
+				},
+				{
+					"name": "resume game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/game/{{current_game_id}}/resume",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game",
+								"{{current_game_id}}",
+								"resume"
+							]
+						},
+						"description": "Resume a paused game"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "player",
+			"item": [
+				{
+					"name": "new player",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b3e4e0e0-d7c3-42a8-9427-da185721a045",
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    var res = pm.response.json();\r",
+									"\r",
+									"    pm.environment.set(\"player_secret_key\", res.secretKey);\r",
+									"    pm.environment.set(\"player_id\", res.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player"
+							]
+						},
+						"description": "Create new player"
+					},
+					"response": []
+				},
+				{
+					"name": "player",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/{{player_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"{{player_id}}"
+							]
+						},
+						"description": "Get player resource"
+					},
+					"response": []
+				},
+				{
+					"name": "self",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/self",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"self"
+							]
+						},
+						"description": "Get own player resource"
+					},
+					"response": []
+				},
+				{
+					"name": "update my name",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/self/name/Conway",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"self",
+								"name",
+								"Conway"
+							]
+						},
+						"description": "Change player name"
+					},
+					"response": []
+				},
+				{
+					"name": "join game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/self/game/{{current_game_id}}/join",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"self",
+								"game",
+								"{{current_game_id}}",
+								"join"
+							]
+						},
+						"description": "Lets a player join a game"
+					},
+					"response": []
+				},
+				{
+					"name": "leave game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/self/game/{{current_game_id}}/leave",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"self",
+								"game",
+								"{{current_game_id}}",
+								"leave"
+							]
+						},
+						"description": "Lets a player leave a game"
+					},
+					"response": []
+				},
+				{
+					"name": "move",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\": 0,\r\n    \"origin\": {\r\n        \"x\": 6,\r\n        \"y\": 6\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/player/self/game/{{current_game_id}}/move",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"self",
+								"game",
+								"{{current_game_id}}",
+								"move"
+							]
+						},
+						"description": "Make a move by a player"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{player_secret_key}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "de5f2df1-7a14-4917-b7bc-2c002cb57c94",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "f3600a96-9142-4abe-804a-d3cd7d642de9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
