@@ -4,7 +4,6 @@ import { CellType } from "./const";
 import { ClearCellDiff, Diff, emptyDiff, ModifyResDiff, PutCellDiff } from "./diff";
 
 const log = debug('lvg:engine');
-//TODO fix reference equals comparisons
 export class GameLoop {
     private readonly _tickDuration: number;
     private readonly _game: Game;
@@ -254,22 +253,22 @@ export interface PlayerInputBuffer {
 }
 
 export class PrioritizingLastInputBuffer implements PlayerInputBuffer {
-    private readonly _unprocessedMoves: Map<Player, OrderedMove> = new Map<Player, OrderedMove>();
+    private readonly _unprocessedMoves: Map<number, OrderedMove> = new Map<number, OrderedMove>();
 
     popNextMoveByPlayer(p: Player): OrderedMove | undefined {
-        const nextMove = this._unprocessedMoves.get(p);
+        const nextMove = this._unprocessedMoves.get(p.id);
         if (nextMove !== undefined) {
-            this._unprocessedMoves.delete(p);
+            this._unprocessedMoves.delete(p.id);
         }
 
         return nextMove;
     }
 
     onNewMoveReceived(p: Player, m: OrderedMove): void {
-        const bufferedMove = this._unprocessedMoves.get(p);
+        const bufferedMove = this._unprocessedMoves.get(p.id);
 
         if (!bufferedMove || bufferedMove.order < m.order) {
-            this._unprocessedMoves.set(p, m);
+            this._unprocessedMoves.set(p.id, m);
         }
     }
 
