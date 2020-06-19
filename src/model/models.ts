@@ -2,7 +2,7 @@ import { CellType, Const, STARTING_CONF_P1, STARTING_CONF_P2 } from "../game/con
 
 export const NOT_SET = -1;
 
-export class PlayerWithAuth implements Player{
+export class PlayerWithAuth implements Player {
     readonly id: number;
     name: string;
     readonly secretKey: string;
@@ -153,11 +153,15 @@ export class Game {
             this._player1 = undefined;
             if (this.state === GameState.RUNNING) {
                 this._state = GameState.PLAYER2_WIN;
+            } else if (this.state === GameState.READY_TO_START) {
+                this._state = GameState.WAITING_FOR_PLAYERS;
             }
         } else if (this.player2?.id === p.id) {
             this._player2 = undefined;
             if (this.state === GameState.RUNNING) {
                 this._state = GameState.PLAYER1_WIN;
+            } else if (this.state === GameState.READY_TO_START) {
+                this._state = GameState.WAITING_FOR_PLAYERS;
             }
         }
     }
