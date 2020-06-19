@@ -40,7 +40,7 @@ export class PutCellDiff extends Diff {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected applyInternal(map: GMap, _: Resources | undefined): void {
-        map.state[this._y][this._x] = this._type;
+        map.set(this._x, this._y, this._type);
     }
 }
 

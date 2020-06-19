@@ -226,13 +226,16 @@ export enum GameState {
 export interface Map {
     readonly width: number,
     readonly height: number,
-    readonly state: Array<Array<CellType>>
+
+    get(x: number, y: number): CellType
+    potentiallyUnsafeGet(x: number, y: number): CellType
+    set(x: number, y: number, cell: CellType): void
 }
 
 export class MapImpl implements Map {
     readonly width: number;
     readonly height: number;
-    readonly state: Array<Array<CellType>>;
+    private readonly state: Array<Array<CellType>>;
 
     constructor(width: number, height: number) {
         this.width = width;
@@ -244,6 +247,20 @@ export class MapImpl implements Map {
         }
     }
 
+    potentiallyUnsafeGet(x: number, y: number): CellType {
+        if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+            return this.get(x, y);
+        }
+        return CellType.OUT_OF_BOUNDS;
+    }
+
+    get(x: number, y: number): CellType {
+        return this.state[y][x];
+    }
+
+    set(x: number, y: number, cell: CellType): void {
+        this.state[y][x] = cell;
+    }
 }
 
 export enum MoveType {

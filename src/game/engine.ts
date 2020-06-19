@@ -80,32 +80,33 @@ export class BasicRuleEngine implements RulesEngine {
             p2Move = inputBuffer.popNextMoveByPlayer(p2);
         }
 
+        const m = game.map;
         if (p1Move && p2Move) {
             if (p1Move.order < p2Move.order) {
-                BasicRuleEngine.processPlayerMove(game.map, p1Move, game.player1Resources.cellType)
-                    .apply(game.map, game.player1Resources);
+                BasicRuleEngine.processPlayerMove(m, p1Move, game.player1Resources.cellType)
+                    .apply(m, game.player1Resources);
 
-                BasicRuleEngine.processPlayerMove(game.map, p2Move, game.player2Resources.cellType)
-                    .apply(game.map, game.player2Resources);
+                BasicRuleEngine.processPlayerMove(m, p2Move, game.player2Resources.cellType)
+                    .apply(m, game.player2Resources);
             } else {
-                BasicRuleEngine.processPlayerMove(game.map, p2Move, game.player2Resources.cellType)
-                    .apply(game.map, game.player2Resources);
+                BasicRuleEngine.processPlayerMove(m, p2Move, game.player2Resources.cellType)
+                    .apply(m, game.player2Resources);
 
-                BasicRuleEngine.processPlayerMove(game.map, p1Move, game.player1Resources.cellType)
-                    .apply(game.map, game.player1Resources);
+                BasicRuleEngine.processPlayerMove(m, p1Move, game.player1Resources.cellType)
+                    .apply(m, game.player1Resources);
             }
         } else if (p1Move) {
-            BasicRuleEngine.processPlayerMove(game.map, p1Move, game.player1Resources.cellType)
-                .apply(game.map, game.player1Resources);
+            BasicRuleEngine.processPlayerMove(m, p1Move, game.player1Resources.cellType)
+                .apply(m, game.player1Resources);
         } else if (p2Move) {
-            BasicRuleEngine.processPlayerMove(game.map, p2Move, game.player2Resources.cellType)
-                .apply(game.map, game.player2Resources);
+            BasicRuleEngine.processPlayerMove(m, p2Move, game.player2Resources.cellType)
+                .apply(m, game.player2Resources);
         }
 
         //process game rules
-        const gameRulesDiff = BasicRuleEngine.applyGameOfLifeRules(game.map);
+        const gameRulesDiff = BasicRuleEngine.applyGameOfLifeRules(m);
 
-        gameRulesDiff.apply(game.map, undefined);
+        gameRulesDiff.apply(m, undefined);
 
         //tally up player cells
         const p1CellType = game.player1Resources.cellType;
@@ -114,12 +115,11 @@ export class BasicRuleEngine implements RulesEngine {
         let p1CellCount = 0;
         let p2CellCount = 0;
 
-        const height = game.map.height;
+        const height = m.height;
         for (let y = 0; y < height; ++y) {
-            const width = game.map.width;
+            const width = m.width;
             for (let x = 0; x < width; ++x) {
-                const state = game.map.state;
-                const cell = state[y][x];
+                const cell = m.get(x, y);
                 if (cell === p1CellType) {
                     p1CellCount += 1;
                 } else if (cell === p2CellType) {
@@ -131,7 +131,7 @@ export class BasicRuleEngine implements RulesEngine {
         game.player1Resources.cellsAlive = p1CellCount;
         game.player2Resources.cellsAlive = p2CellCount;
 
-        game.nextTick(game.map, game.player1Resources, game.player2Resources);
+        game.nextTick(m, game.player1Resources, game.player2Resources);
 
         //decide if the game is over
         let isGameEnd = false;
@@ -154,7 +154,7 @@ export class BasicRuleEngine implements RulesEngine {
             const x = move.origin.x;
             const y = move.origin.y;
             if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
-                const cellType = map.state[x][y];
+                const cellType = map.get(x, y);
                 let placementValid = false;
                 switch (cellType) {
                     case CellType.OUT_OF_BOUNDS:
@@ -192,7 +192,7 @@ export class BasicRuleEngine implements RulesEngine {
         let resultDiff = emptyDiff;
         for (let y = 0; y < map.height; ++y) {
             for (let x = 0; x < map.width; ++x) {
-                const me = map.state[y][x];
+                const me = map.get(x, y);
                 let neighbourCount = 0;
                 let containsWarringNeighbours = false;
                 let playerNeighbourFirstType: CellType | undefined = undefined;
@@ -213,7 +213,7 @@ export class BasicRuleEngine implements RulesEngine {
                     }
                 }
 
-                if (this.isLivingCell(map.state[y][x]) && (neighbourCount > 3 || neighbourCount < 2)) {
+                if (this.isLivingCell(map.get(x, y)) && (neighbourCount > 3 || neighbourCount < 2)) {
                     resultDiff = resultDiff.plus(new ClearCellDiff(x, y));
                 } else if (neighbourCount === 3) {
                     if (containsWarringNeighbours || !playerNeighbourFirstType) {
@@ -228,22 +228,16 @@ export class BasicRuleEngine implements RulesEngine {
         return resultDiff;
     }
 
-    private static getCell(map: GMap, x: number, y: number): CellType {
-        if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
-            return map.state[y][x];
-        }
-        return CellType.OUT_OF_BOUNDS;
-    }
 
     private static* neighbours(map: GMap, x: number, y: number) {
-        yield this.getCell(map, x - 1, y - 1);
-        yield this.getCell(map, x, y - 1);
-        yield this.getCell(map, x + 1, y - 1);
-        yield this.getCell(map, x - 1, y);
-        yield this.getCell(map, x + 1, y);
-        yield this.getCell(map, x - 1, y + 1);
-        yield this.getCell(map, x, y + 1);
-        yield this.getCell(map, x + 1, y + 1);
+        yield map.potentiallyUnsafeGet(x - 1, y - 1);
+        yield map.potentiallyUnsafeGet(x, y - 1);
+        yield map.potentiallyUnsafeGet(x + 1, y - 1);
+        yield map.potentiallyUnsafeGet(x - 1, y);
+        yield map.potentiallyUnsafeGet(x + 1, y);
+        yield map.potentiallyUnsafeGet(x - 1, y + 1);
+        yield map.potentiallyUnsafeGet(x, y + 1);
+        yield map.potentiallyUnsafeGet(x + 1, y + 1);
     }
 
     private static isLivingCell(type: CellType): boolean {
