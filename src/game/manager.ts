@@ -11,13 +11,15 @@ class GameManager {
 
     addPlayerToGame(player: Player, game: Game): void {
         const preExistingGame = this._playersInGames.get(player.id);
-        if (preExistingGame) {
-            throw new Error(`Player with Id ${player.id} is currently in a Game (Id: ${preExistingGame.id})`);
+        if (!preExistingGame) {
+            game.addPlayerToFreeSeat(player);
+            this._playersInGames.set(player.id, game);
+
+        } else if (preExistingGame.id !== game.id) {
+            throw new Error(`Player with Id ${player.id} is currently in a Game (Id: ${preExistingGame.id}). Leave that game to be able to join Game (Id: ${game.id})`);
         }
 
-        game.addPlayerToFreeSeat(player);
-        this._playersInGames.set(player.id, game);
-
+        //do nothing if player is already in the game
     }
 
     removePlayerFromGame(player: Player, game: Game): void {
