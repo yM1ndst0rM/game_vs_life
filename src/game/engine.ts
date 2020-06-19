@@ -4,6 +4,7 @@ import { CellType } from "./const";
 import { ClearCellDiff, Diff, emptyDiff, ModifyResDiff, PutCellDiff } from "./diff";
 
 const log = debug('lvg:engine');
+
 export class GameLoop {
     private readonly _tickDuration: number;
     private readonly _game: Game;
@@ -194,12 +195,20 @@ export class BasicRuleEngine implements RulesEngine {
                 const me = map.state[y][x];
                 let neighbourCount = 0;
                 let containsWarringNeighbours = false;
+                let playerNeighbourFirstType: CellType | undefined = undefined;
+                if (this.isPlayerCell(me)) {
+                    playerNeighbourFirstType = me;
+                }
 
                 for (const n of this.neighbours(map, x, y)) {
                     if (this.isLivingCell(n)) {
                         neighbourCount += 1;
-                        if (n !== me && n !== CellType.NEUTRAL) {
-                            containsWarringNeighbours = true;
+                        if (this.isPlayerCell(n)) {
+                            if (playerNeighbourFirstType && n !== playerNeighbourFirstType) {
+                                containsWarringNeighbours = true;
+                            } else {
+                                playerNeighbourFirstType = n;
+                            }
                         }
                     }
                 }
@@ -207,10 +216,10 @@ export class BasicRuleEngine implements RulesEngine {
                 if (this.isLivingCell(map.state[y][x]) && (neighbourCount > 3 || neighbourCount < 2)) {
                     resultDiff = resultDiff.plus(new ClearCellDiff(x, y));
                 } else if (neighbourCount === 3) {
-                    if (containsWarringNeighbours) {
+                    if (containsWarringNeighbours || !playerNeighbourFirstType) {
                         resultDiff = resultDiff.plus(new PutCellDiff(x, y, CellType.NEUTRAL));
                     } else {
-                        resultDiff = resultDiff.plus(new PutCellDiff(x, y, me));
+                        resultDiff = resultDiff.plus(new PutCellDiff(x, y, playerNeighbourFirstType));
                     }
                 }
             }
@@ -238,11 +247,15 @@ export class BasicRuleEngine implements RulesEngine {
     }
 
     private static isLivingCell(type: CellType): boolean {
+        return this.isPlayerCell(type)
+            || type === CellType.NEUTRAL;
+    }
+
+    private static isPlayerCell(type: CellType): boolean {
         return type === CellType.PLAYER_A
             || type === CellType.PLAYER_B
             || type === CellType.PLAYER_C
-            || type === CellType.PLAYER_D
-            || type === CellType.NEUTRAL;
+            || type === CellType.PLAYER_D;
     }
 }
 
