@@ -2,7 +2,7 @@ import { CellType, Const, STARTING_CONF_P1, STARTING_CONF_P2 } from "../game/con
 
 export const NOT_SET = -1;
 
-export class PlayerWithAuth implements Player{
+export class PlayerWithAuth implements Player {
     readonly id: number;
     name: string;
     readonly secretKey: string;
@@ -46,7 +46,6 @@ export class Resources {
     }
 }
 
-//TODO fix reference equals comparisons
 export class Game {
     private readonly _id: number = NOT_SET;
     private _tick = 0;
@@ -150,15 +149,19 @@ export class Game {
     }
 
     removePlayer(p: Player): void {
-        if (this.player1 === p) {
+        if (this.player1?.id === p.id) {
             this._player1 = undefined;
             if (this.state === GameState.RUNNING) {
                 this._state = GameState.PLAYER2_WIN;
+            } else if (this.state === GameState.READY_TO_START) {
+                this._state = GameState.WAITING_FOR_PLAYERS;
             }
-        } else if (this.player2 === p) {
+        } else if (this.player2?.id === p.id) {
             this._player2 = undefined;
             if (this.state === GameState.RUNNING) {
                 this._state = GameState.PLAYER1_WIN;
+            } else if (this.state === GameState.READY_TO_START) {
+                this._state = GameState.WAITING_FOR_PLAYERS;
             }
         }
     }
@@ -198,9 +201,9 @@ export class Game {
     }
 
     endGame(winner: Player | undefined): void {
-        if (this.player1 === winner) {
+        if (this.player1 && this.player1.id === winner?.id) {
             this._state = GameState.PLAYER1_WIN;
-        } else if (this.player2 === winner) {
+        } else if (this.player2 && this.player2?.id === winner?.id) {
             this._state = GameState.PLAYER2_WIN;
         } else {
             this._state = GameState.DRAW;
