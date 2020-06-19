@@ -74,7 +74,7 @@ export class BasicRuleEngine implements RulesEngine {
             p1Move = inputBuffer.popNextMoveByPlayer(p1);
         }
 
-        const p2 = game.player1;
+        const p2 = game.player2;
         let p2Move: OrderedMove | undefined;
         if (p2) {
             p2Move = inputBuffer.popNextMoveByPlayer(p2);
