@@ -178,7 +178,7 @@ export class BasicRuleEngine implements RulesEngine {
                 }
 
                 if (placementValid) {
-                    return new PutCellDiff(x, y, cellType).plus(new ModifyResDiff(-1, cellType));
+                    return new PutCellDiff(x, y, playerCellType).plus(new ModifyResDiff(-1, playerCellType));
                 } else {
                     return emptyDiff;
                 }
